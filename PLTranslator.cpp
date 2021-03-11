@@ -1,116 +1,96 @@
-//Work in progress, will add in the ability to translateback from pig lattin
+// This program translates English sentances into the made up language of Pig Latin
+// Alexander Ng
+// 03/08/2021
+
 #include <iostream>
-#include <string>
 #include <cstring>
 using namespace std;
 
-/*The idea of this program is to create a translator for the made up language of pig latin*/
-
-class Language{
-  private:
-  string words,t_Words;
-  public:
-//gets input from user
-  void i_Words(string input){words=input;};
-//returns the translated word
-  string o_Twords(){return t_Words;};
-//translate the words
-  void translate();
+//class for language
+class Language {
+private:
+    //variables to store user input words and translated words
+    string word;
+public:
+    void get_word(string sen);
+    void define_Word();
+    void translate(int f, int e);
 };
 
-void Language::translate(){
-//stores the amount of spaces between words/characters, the string length and word length
-  int length,word_Length;
-//stores the first letter of each word
-  string temp,temp_Word;
-  char f_Word;
-  bool got_Word=false,upper=false;
-  length = words.length();
-//For loop to go through every single letter
-  for(int i=0;i<length;i++){
-//Checks if this letter is a letter
-    if((words[i]!=' ')&&(words[i]!='.')&&(words[i]!=',')&&(words[i]!='?')&&(words[i]!='!')){
-//if it is a letter, then collect the word
-      do{
-//a word ends with a space or period or comma etc
-//checks if the word is ended by a comma or question mark to see if the first letter of the word needs to be capitalized
-        if((words[i]=='.')||(words[i]==',')||(words[i]=='?')||(words[i]=='!')){
-          upper=true;
-          got_Word=true;
+//class function that obtains the word
+void Language::get_word(string sen) {
+    word = sen;
+}
+
+//class function to define what are words
+/*
+Gets the input from the user, then seperates what are words to plug into another function to translate it*/
+void Language::define_Word() {
+    //location of the sentanace that the function has read, first letter of a word, end of that word
+    int sentance = 0, f, e;
+    //stores length of word
+    int length = word.length();
+    //while loop until the input is finished translating
+    while (sentance < length) {
+        //obtains the location of the first letter
+
+        //cout<<"Looking at: "<<sentance<<" word: "<<word[sentance]<<endl;
+
+        if (isalpha(word[sentance])) {
+            f = sentance;
+            sentance++;
         }
-        else if((words[i]==' ')||(i>=length)){
-          got_Word=true;
+        //if there are more letters afterwards, loop to find when it ends
+        while (isalpha(word[sentance])) {
+            sentance++;
         }
-        else{
-          temp+=words[i];
+        //ending location is 1 less than resulting word
+        e = sentance - 1;
+        //prevents retranslating old stuff
+        if (isalpha(word[sentance - 1])) {
+            translate(f, e);
         }
-        i++;
-      }while(got_Word==false);
-//gets the word length
-      word_Length=temp.length();
-//resets the bool variable so it can be used for other words
-      got_Word=false;
-//gets the first letter of the word
-      f_Word=temp[0];
-//copies the word except of the first word
-      for(int k=1;k<word_Length;k++){
-        temp_Word+=temp[k];
-      }
-//checks if the first letter is capitalized, if it is, capitalized the first letter of the new word
-      if(isupper(f_Word)){
-        temp_Word[0]=toupper(temp_Word[0]);
-        f_Word=tolower(f_Word);
-      }
-//checks if it is needed to capitalized the first letter based on the stuff after the word from the previous loop
-      if(upper==true){
-        temp_Word[0]=toupper(temp_Word[0]);
-        upper =false;
-      }
-//Adds the original first letter to the end of the word
-      temp_Word+=f_Word;
-//Adds 'ay' after the original first letter
-      temp_Word+="ay";
-//Adds the new word to the translated sentence
-      t_Words+=temp_Word;
-//resets all the varaibles
-      temp.clear();
-      temp_Word.clear();
-//takes one off the iteration due to the process of creating the new word
-      i--;
+        cout << word[sentance];
+        sentance++;
     }
-//copies the next item to the new string
-    t_Words+=words[i];
-  }
-//Make sures that the first letter is capitalized
-  t_Words[0]=toupper(t_Words[0]);
 }
 
-//function prototype
-//gets english input to be translated
-void get_Eng(Language &eng);
-//outputs translated pig lattin
-void o_Pig(Language &eng);
-
-int main(){
-  Language eng;
-  cout<<"This program is a translator for translating the English language to the made up language of Pig Lattin.\n";
-  get_Eng(eng);
-  eng.translate();
-   o_Pig(eng);
+//class function to translate the found words
+/*
+It recieves the location of the first letter and the end of the word then takes out the first letter to add it to the end of the output word
+*/
+void Language::translate(int f, int e) {
+    //cout<<"\nS translate:\n";
+  //stores the first letter
+    char first_Word = word[f];
+    //Caps the new first letter of the word if it is the beginning of a sentance
+    if (isupper(word[f]) || (f == 0 || word[f - 1] == '.') || ((word[f - 2] == '.') && (word[f - 1] == ' '))) {
+        cout << static_cast<char>(toupper(word[f + 1]));
+    }
+    else {
+        cout << word[f + 1];
+    }
+    //a for loop that starts after the beginning of the word and end at the end
+    if ((e - f) > 1) {
+        for (int i = f + 2; i < e + 1; i++) {
+            cout << word[i];
+        }
+    }
+    if (isupper(word[e])) {
+        cout << static_cast<char>(toupper(first_Word)) << "ay";
+    }
+    else {
+        cout << static_cast<char>(tolower(first_Word)) << "ay";
+    }
+    //cout<<"\nE translate:\n";
 }
 
-//gets english input to be translated
-void get_Eng(Language &eng){
-  string input;
-  cout<<"Please enter the sentence/word that you would like to be translated.\n";
-  getline(cin,input);
-  //cout<<"input: "<<input<<endl;
-  eng.i_Words(input);
-}
-
-//outputs translated pig lattin
-void o_Pig(Language &eng){
-  cout<<"Translation:\n"
-  <<"=============================================================\n";
-  cout<<eng.o_Twords()<<endl;
+int main() {
+    Language trans;
+    string user;
+    cout << "Please enter words to translate\n";
+    getline(cin, user);
+    cout << "Translation:\n";
+    trans.get_word(user);
+    trans.define_Word();
 }
